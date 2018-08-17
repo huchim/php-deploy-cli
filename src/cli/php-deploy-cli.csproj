@@ -43,8 +43,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Deployer.cs" />
     <Compile Include="DeployServer.cs" />
     <Compile Include="DeployServerBase.cs" />
+    <Compile Include="CliOptions\DeployOptions.cs" />
     <Compile Include="RepositoryFile.cs" />
     <Compile Include="GitRepository.cs" />
     <Compile Include="IDeployServer.cs" />
