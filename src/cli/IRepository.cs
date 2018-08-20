@@ -17,6 +17,10 @@ namespace phpdeploy
 
         string getPublishFolder();
 
-        Dictionary<string, RepositoryFile> getFileList();
+        Dictionary<string, IRepositoryFile> getFileList();
+
+        IPackage CreateFileList();
+
+        IPackage LoadFileList(IRepositoryFile[] files);
     }
 }

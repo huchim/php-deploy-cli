@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-
-namespace phpdeploy
+﻿namespace phpdeploy
 {
-    class DeployServerBase: IWithHttpRequest
+    using phpdeploy.http;
+    using System;
+    using System.IO;
+    using System.Net;
+
+    class DeployServerBase : IWithHttpRequest
     {
         string appName = "";
         string stageName = "";
@@ -34,38 +32,32 @@ namespace phpdeploy
                 return -1;
             }
 
-            using (var client = new WebClient())
-            {
-                if (credentials != null)
-                {
-                    client.Credentials = credentials;
-                }
-
-                var bytes = File.ReadAllBytes(fileName);
-
-                Console.WriteLine("Subiendo con URL: {0}", url);
-                client.UploadFile(url, "POST", fileName);
-            }
+            Console.WriteLine("Subiendo con URL: {0}", url);
+            var response = HttpRequest.UPLOAD(url, fileName, credentials);
 
             return 0;
         }
 
+        protected static string[] DownloadStringArrayWithPost(string url, string filename, NetworkCredential credentials = null)
+        {
+            var response = HttpRequest.UPLOAD(url, filename, credentials);
+
+            if (!string.IsNullOrEmpty(response))
+            {
+                return response.Split('\n');
+            }
+
+            return new string[] { };
+        }
+
         protected static string[] DownloadStringArray(string url, NetworkCredential credentials = null)
         {
-            using (var client = new WebClient())
+            Console.WriteLine("Solicitud a la URL: {0}", url);
+            var response = HttpRequest.GET(url, credentials);
+
+            if (!string.IsNullOrEmpty(response))
             {
-                if (credentials != null)
-                {
-                    client.Credentials = credentials;
-                }
-
-                Console.WriteLine("Solicitud a la URL: {0}", url);
-                var response = client.DownloadString(url);
-
-                if (!string.IsNullOrEmpty(response))
-                {
-                    return response.Split('\n');
-                }
+                return response.Split('\n');
             }
 
             return new string[] { };
@@ -73,17 +65,8 @@ namespace phpdeploy
 
         protected static string DownloadString(string url, NetworkCredential credentials = null)
         {
-            using (var client = new WebClient())
-            {
-                if (credentials != null)
-                {
-                    client.Credentials = credentials;
-                }
-
-                Console.WriteLine("Solicitud a la URL: {0}", url);
-
-                return client.DownloadString(url);
-            }
+            Console.WriteLine("Solicitud a la URL: {0}", url);
+            return HttpRequest.GET(url, credentials);
         }
 
         protected string getAppName()
@@ -141,6 +124,11 @@ namespace phpdeploy
             return string.Format("{0}/upload/{1}", this.getBaseUrl(), timestamp);
         }
 
+        protected string getSnapshotDifferenceUrlWithLocal(int lockTimestamp)
+        {
+            return string.Format("{0}/diff/{1}", this.getBaseUrl(), lockTimestamp);
+        }
+
         protected string getServerTimestampsUrl()
         {
             return string.Format("{0}/timestamps", this.getBaseUrl());
@@ -148,7 +136,7 @@ namespace phpdeploy
 
         protected string getBaseUrl()
         {
-            return string.Format("{0}/{1}/{2}", this.url, this.getAppName(), this.getStageName());
+            return string.Format("{0}{1}/{2}", this.url, this.getAppName(), this.getStageName());
         }
     }
 }

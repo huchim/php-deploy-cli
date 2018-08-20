@@ -13,6 +13,11 @@ namespace phpdeploy
 
         void setChanges(string[] fileChanges);
 
+        void savePackageFile(string filename);
+
+
+        void setFileList(Dictionary<string, IRepositoryFile> dictionary);
+
         /// <summary>
         /// Exporta los cambios a un archivo comprimido.
         /// </summary>

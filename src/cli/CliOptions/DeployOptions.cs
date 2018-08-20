@@ -10,6 +10,10 @@ namespace phpdeploy.CliOptions
     {
         private Uri uri;
 
+
+        [Option('o', "output", Required =true, HelpText = "Ruta para guardar o cargar el ZIP.")]
+        public string Output { get; set; }
+
         [Option("url", HelpText = "Direccion URL del servidor.")]
         public string ServerUrl { get; set; }
 
@@ -64,6 +68,16 @@ namespace phpdeploy.CliOptions
             this.ParseUrl();
 
             return this.uri.ToString();
+        }
+
+        public string GetCurrentWorkingDirectory()
+        {
+            if (!string.IsNullOrEmpty(this.RepositoryFolder))
+            {
+                return this.RepositoryFolder;
+            }
+
+            return System.IO.Directory.GetCurrentDirectory();
         }
     }
 }

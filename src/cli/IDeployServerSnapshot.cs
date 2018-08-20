@@ -7,6 +7,8 @@ namespace phpdeploy
 {
     interface IDeployServerSnapshot
     {
+        IPackage compareWith(IPackage package);
+
         /// <summary>
         /// Devuelve una lista de cambios entre <see cref="getServerLastTimestamp" /> y la marca de tiempo actual.
         /// </summary>

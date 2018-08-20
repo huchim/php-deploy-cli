@@ -96,5 +96,36 @@ namespace phpdeploy
         {
             return this.lockTimestamp;
         }
+
+        public IPackage compareWith(IPackage package)
+        {
+            // Recuperar la URL del servicio encargado de procesar a diferencia.
+            var compareUrlService = this.getSnapshotDifferenceUrlWithLocal(this.currentTimestamp);
+            
+            // Crear un archivo JSON con el contenido para subir al servidor.
+            var fileName = Path.GetTempPath() + Guid.NewGuid().ToString();
+
+            // Guarda una rela´ción de archivos presentes en una carpeta.
+            Console.WriteLine("Creando archivo temporal: {0}", fileName);
+            package.savePackageFile(fileName);
+
+            var changes = DownloadStringArrayWithPost(compareUrlService, fileName, this.getCredentials());
+            var dictionary = new Dictionary<string, IRepositoryFile>();
+
+            foreach (var change in changes)
+            {
+                var info = new RepositoryFile();
+                info.fromString(change);
+                dictionary.Add(info.Name, info);
+
+                Console.WriteLine("{1} => {0}", info.Name, info.Action);
+            }
+
+            package.setFileList(dictionary);
+            
+            // Console.WriteLine("El servidor devolvió {0} archivos que se van a comparar.", files.Count);
+            return package;
+
+        }
     }
 }

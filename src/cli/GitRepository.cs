@@ -49,26 +49,52 @@ namespace phpdeploy
             this.folder = folder;
         }
 
-        public Dictionary<string, RepositoryFile> getFileList()
+        public IPackage CreateFileList()
+        {
+            var package = new Package();
+            var dictionary = this.getFileList();
+
+            package.setRepository(this);
+            package.setFileList(dictionary);
+
+            return package;
+        }
+
+        public IPackage LoadFileList(IRepositoryFile[] files)
+        {
+            var package = new Package();
+            var dictionary = new Dictionary<string, IRepositoryFile>();
+
+            foreach (var file in files) {
+                dictionary.Add(file.Name, file);
+            }
+
+            package.setRepository(this);
+            package.setFileList(dictionary);
+
+            return package;
+        }
+
+        public Dictionary<string, IRepositoryFile> getFileList()
         {
             var directory = this.getPublishFolder();
             var files = GetFileList(directory);
-            var dictionary = new Dictionary<string, RepositoryFile>();
+            var dictionary = new Dictionary<string, IRepositoryFile>();
 
             foreach (string file in files)
             {
                 var fileHash = MD5HashFile(file);
-                var fileKey = CreateRepositoryFileKey(file, fileHash, this.getFolder());
+                var fileKey = CreateRepositoryFileKey(file, fileHash, directory);
 
                 if (dictionary.ContainsKey(fileKey))
                 {
-                    Console.WriteLine("Warning: La clave {0} ya ha sido agregada a la colección {1}", fileHash, file);
+                    Console.WriteLine("Warning: La clave {0} ya ha sido agregada a la colección {1}", fileHash, file.Replace(directory, ""));
                     continue;
                 }
 
                 dictionary.Add(fileKey, new RepositoryFile
                 {
-                    Name = file,
+                    Name = file.Replace(directory, ""),
                 });
             }
 

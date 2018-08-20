@@ -21,8 +21,6 @@
                        }
                    });
 
-            Console.WriteLine("Presiona cualquier tecla para salir");
-            Console.ReadKey(false);
         }
     }
 }
